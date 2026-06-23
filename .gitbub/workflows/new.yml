@@ -7,23 +7,18 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on:  ubuntu-latest
 
     steps:
-      - name: Pull latest code
-        run: |
-          cd /var/www/html
-
-          git fetch origin main
-
-          git reset --hard origin/main
-
-      - name: Restart PHP Server
-        run: |
-          cd /var/www/html
-
-          pm2 delete phppro || true
-
-          pm2 start "php -S 0.0.0.0:8000 -t ." --name phppro
-
-          pm2 save
+      - name: Deploy to Ec2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.IP }} 
+          username: ubuntu 
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            cd /var/www/html
+            git pull origin main
+            pm2 delete phppro || true
+            pm2 start "php -S 0.0.0.0:8000 -t ." --name phppro
+            pm2 save
