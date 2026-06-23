@@ -1,0 +1,29 @@
+name: PHP Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /var/www/html
+
+          git fetch origin main
+
+          git reset --hard origin/main
+
+      - name: Restart PHP Server
+        run: |
+          cd /var/www/html
+
+          pm2 delete phppro || true
+
+          pm2 start "php -S 0.0.0.0:8000 -t ." --name phppro
+
+          pm2 save
